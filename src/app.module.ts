@@ -1,46 +1,33 @@
-import { GraphQLModule } from '@nestjs/graphql';
 import { Module } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
-import { AppService } from './services/app.service';
-import { AuthModule } from './resolvers/auth/auth.module';
-import { UserModule } from './resolvers/user/user.module';
-import { PostModule } from './resolvers/post/post.module';
-import { AppResolver } from './resolvers/app.resolver';
-import { DateScalar } from './common/scalars/date.scalar';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from './configs/config';
-import { GraphqlConfig } from './configs/config.interface';
 import { PrismaModule } from 'nestjs-prisma';
+import { ContractModule } from './contract/contract.module';
+import { ExploitModule } from './exploit/exploit.module';
+import { SubscribeModule } from './subscribe/subscribe.module';
+import { BullModule } from '@nestjs/bull';
+import { EmailNotificationModule } from './email-notification/email-notification.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [config] }),
-    GraphQLModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => {
-        const graphqlConfig = configService.get<GraphqlConfig>('graphql');
-        return {
-          installSubscriptionHandlers: true,
-          buildSchemaOptions: {
-            numberScalarMode: 'integer',
-          },
-          sortSchema: graphqlConfig.sortSchema,
-          autoSchemaFile:
-            graphqlConfig.schemaDestination || './src/schema.graphql',
-          debug: graphqlConfig.debug,
-          playground: graphqlConfig.playgroundEnabled,
-          context: ({ req }) => ({ req }),
-        };
-      },
-      inject: [ConfigService],
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule.forRoot({
       isGlobal: true,
     }),
-    AuthModule,
+    BullModule.forRootAsync({
+      useFactory: async (config: ConfigService) => ({
+        redis: {
+          host: config.get<string>('REDIS_HOST'),
+          port: config.get<number>('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    ContractModule,
+    ExploitModule,
+    SubscribeModule,
+    EmailNotificationModule,
     UserModule,
-    PostModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, AppResolver, DateScalar],
 })
 export class AppModule {}

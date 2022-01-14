@@ -1,14 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import { AppModule } from './app.module';
-import {
-  CorsConfig,
-  NestConfig,
-  SwaggerConfig,
-} from './configs/config.interface';
+import { UserService } from './user/user.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,28 +16,29 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
-  const configService = app.get(ConfigService);
-  const nestConfig = configService.get<NestConfig>('nest');
-  const corsConfig = configService.get<CorsConfig>('cors');
-  const swaggerConfig = configService.get<SwaggerConfig>('swagger');
-
   // Swagger Api
-  if (swaggerConfig.enabled) {
-    const options = new DocumentBuilder()
-      .setTitle(swaggerConfig.title || 'Nestjs')
-      .setDescription(swaggerConfig.description || 'The nestjs API description')
-      .setVersion(swaggerConfig.version || '1.0')
-      .build();
-    const document = SwaggerModule.createDocument(app, options);
+  const options = new DocumentBuilder()
+    .setTitle('SolidGuard Backend')
+    .setDescription("SolidGuard's Backend Server")
+    .setVersion('prototype-v1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
 
-    SwaggerModule.setup(swaggerConfig.path || 'api', app, document);
-  }
+  SwaggerModule.setup('api', app, document);
 
   // Cors
-  if (corsConfig.enabled) {
-    app.enableCors();
+  app.enableCors();
+
+  // create initial admin account if it doesn't exist already
+  const userService = app.get<UserService>(UserService);
+  if (!(await userService.getUserByEmail(process.env.ADMIN_EMAIL))) {
+    await userService.createAccount({
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
+      role: Role.ADMIN,
+    });
   }
 
-  await app.listen(process.env.PORT || nestConfig.port || 3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

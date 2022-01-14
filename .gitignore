@@ -6,4 +6,8 @@ coverage/
 .DS_Store
 
 prisma/migrations/dev/
+prisma/dbml/
 .env
+
+cache/
+artifacts/
