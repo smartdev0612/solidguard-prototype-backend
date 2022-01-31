@@ -87,6 +87,19 @@ export class ContractService {
     return pauseableContractAddrs;
   }
 
+  public async isValidGithubContract(
+    githubInfo: GithubContractInfoDto
+  ): Promise<boolean> {
+    if (!githubInfo.path.match(/.+\.sol$/g)) {
+      return false;
+    }
+    try {
+      return !!(await this.githubDAO.getSourceCode(githubInfo));
+    } catch {
+      return false;
+    }
+  }
+
   public async hasGithubContractFromAddrs(
     githubInfo: GithubContractInfoDto,
     contractAddrs: string[]

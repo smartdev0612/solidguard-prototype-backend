@@ -5,7 +5,7 @@
 <h1>dApp Setup for SolidGuard</h1>
 </div>
 
-**Version:** `prototype-v1.0`
+**Version:** `prototype-v1.1`
 
 This will provide instructions on how to setup your dApp to be pauseable by SolidGuard.
 

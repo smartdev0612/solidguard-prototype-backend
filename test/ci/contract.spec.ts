@@ -103,6 +103,42 @@ describe('ContractService', () => {
     });
   });
 
+  describe('isValidGithubContract', () => {
+    beforeEach(async () => {
+      await promiseTimer(delay);
+    });
+    it(`Is valid GithubContract`, async () => {
+      expect(
+        await contractService.isValidGithubContract({
+          author: 'SolidGuard',
+          repo: 'solidguard-prototype-backend',
+          path: 'contracts/src/SolidGuardPauseable.sol',
+          ref: 'cca722dd3838bd697ae10865286b7551f5a6698a',
+        })
+      ).to.be.true;
+    });
+    it(`Invalid Input`, async () => {
+      expect(
+        await contractService.isValidGithubContract({
+          author: 'author',
+          repo: 'repo',
+          path: 'er.sol',
+          ref: 'cool',
+        })
+      ).to.be.false;
+    });
+    it(`Not a Solidity Smart Contract`, async () => {
+      expect(
+        await contractService.isValidGithubContract({
+          author: 'SolidGuard',
+          repo: 'solidguard-prototype-backend',
+          path: '.env.example',
+          ref: 'cca722dd3838bd697ae10865286b7551f5a6698a',
+        })
+      ).to.be.false;
+    });
+  });
+
   describe('getAllContractAddrs', () => {
     beforeEach(async () => {
       await promiseTimer(delay);

@@ -5,7 +5,7 @@
 <h1>solidguard-backend</h1>
 </div>
 
-**Version:** `prototype-v1.0`
+**Version:** `prototype-v1.1`
 
 SolidGuard is a Blockchain Security tool catered towards organizations who manages decentralized applications on the Ethereum blockchain. It is an attack database for documenting all major hacks that happened in the blockchain, and is also used to notify or pause decentralized applications affected by the attacks published in the database.
 

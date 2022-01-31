@@ -20,7 +20,7 @@ async function bootstrap() {
   const options = new DocumentBuilder()
     .setTitle('SolidGuard Backend')
     .setDescription("SolidGuard's Backend Server")
-    .setVersion('prototype-v1.0')
+    .setVersion('prototype-v1.1')
     .build();
   const document = SwaggerModule.createDocument(app, options);
 
